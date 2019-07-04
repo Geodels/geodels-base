@@ -148,12 +148,6 @@ EXPOSE 9999
 RUN printf "#\041/bin/sh \n rm -f /tmp/.X99-lock && xvfb-run -s '-screen 0 1600x1200x16' \$@" >> /usr/local/bin/xvfbrun.sh && \
 chmod +x /usr/local/bin/xvfbrun.sh
 
-# Install Tini.. sedd https://github.com/ipython/ipython/issues/7062, https://github.com/jupyter/notebook/issues/334
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-ENTRYPOINT ["/tini", "--", "/usr/local/bin/xvfbrun.sh"]
-
 RUN git clone https://github.com/j08lue/pycpt.git && \
     cd pycpt && \
     git checkout b45f720d09da79bcd567c5cbba9a554b0a7cc1d9 && \
@@ -197,8 +191,31 @@ RUN python3 -m pip install --no-cache-dir setuptools wheel && \
 RUN mkdir /live && \
     mkdir /live/lib
 
-VOLUME /live/volume
+VOLUME /live/share
 WORKDIR /live
 
+# LavaVu stuff
+# script for xvfb-run.  all docker commands will effectively run under this via the entrypoint
+RUN printf "#\041/bin/sh \n rm -f /tmp/.X99-lock && xvfb-run -s '-screen 0 1600x1200x16' \$@" >> /usr/local/bin/xvfbrun.sh && \
+chmod +x /usr/local/bin/xvfbrun.sh
+
+# Add Tini
+EXPOSE 8888
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/bin/tini
+RUN chmod +x /usr/local/bin/tini
+ENTRYPOINT ["/usr/local/bin/tini", "--"]
+
+# expose LavaVu port
+EXPOSE 9999
+
+# note we use xvfb which to mimic the X display for lavavu
+ENTRYPOINT ["/usr/local/bin/xvfbrun.sh"]
+
+
 # launch notebook
-CMD ["jupyter", "notebook", "--ip='0.0.0.0'", "--no-browser", "--allow-root", "--NotebookApp.iopub_data_rate_limit=1.0e10"]
+#CMD ["jupyter", "notebook", " --no-browser", "--allow-root", "--ip=0.0.0.0", "--NotebookApp.iopub_data_rate_limit=1.0e10"]
+
+ADD run-jupyter.sh /usr/local/bin/run-jupyter.sh
+RUN chmod +x /usr/local/bin/run-jupyter.sh
+CMD /usr/local/bin/run-jupyter.sh
