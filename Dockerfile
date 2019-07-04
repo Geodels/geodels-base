@@ -56,7 +56,7 @@ RUN cd /live/lib && \
         cd /live/lib && \
         rm -rf hdf5-1.10.1 && \
         rm -rf hdf5-1.10.1.tar
-        
+
 RUN cd /live/lib && \
         git clone https://bitbucket.org/petsc/petsc.git && \
         cd petsc && \
