@@ -7,13 +7,13 @@ https://hub.docker.com/u/geodels/
 
 ### Local installation
 
-__ Python 2 version:__
+*Python 2 version:*
 
 ```
 docker build -t geodels/geodels-base:latest -f Dockerfile .
 ```
 
-__ Python 3 version:__
+*Python 3 version:*
 ```
 docker build -t geodels/geodels-base:python3 -f Dockerfile-python3 .
 ```
